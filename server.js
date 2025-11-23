@@ -13,6 +13,25 @@ const init = async () => {
     host: "localhost",
   });
 
+  // Setup swagger 
+  const swaggerOptions = {
+    info: {
+      title: 'Test API documentation',
+      version: '1.0.0',
+    },
+    documentationPath: '/docs' 
+  };
+
+  await server.register([
+    Inert,
+    Vision,
+    {
+      plugin: HapiSwagger, 
+      options: swaggerOptions
+    }
+  ]);
+
+  // Register API routes 
   setupRoutes(server);
 
   await server.start();

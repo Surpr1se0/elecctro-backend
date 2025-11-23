@@ -24,12 +24,13 @@ export function setupRoutes(server) {
   });
 
   // POST -- /todos
-  // Add new item to todo list
-  // JSON with list item (body and INCOMPLETE)
   server.route({
     method: 'POST',
     path: '/todos',
     options: {
+      description: 'Create a new todo item',
+      notes: 'Creates a todo with state INCOMPLETE and returns the created item',
+      tags: ['api'],
       validate: {
         payload: createTodoSchema,
         failAction: (request, h, err) => 
