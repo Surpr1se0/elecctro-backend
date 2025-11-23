@@ -39,7 +39,7 @@ export default function NewTask() {
         helperText={error ? "Please insert a task": ""}
       />
       <Button variant="contained" type="submit">
-        Add
+        Create
       </Button>
     </Box>
   );
