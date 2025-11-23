@@ -1,6 +1,6 @@
 import * as React from "react";
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
+import Box from "@mui/material/Box";
+import { Typography } from "@mui/material";
 import Switch from "@mui/material/Switch";
 
 export default function HideCompleted() {
@@ -12,13 +12,9 @@ export default function HideCompleted() {
   };
 
   return (
-    <FormGroup>
-      <FormControlLabel
-        control={<Switch onChange={handleChange} checked={checked} />}
-        label="Hide Completed"
-      />
-    </FormGroup>
+    <Box display="flex" alignItems="center" gap={1}>
+      <Switch onChange={handleChange} checked={checked} />
+      <Typography variant="body2">Hide completed</Typography>
+    </Box>
   );
 }
-
-// COMEBACK TO THIS IN DUE TIME
