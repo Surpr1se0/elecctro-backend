@@ -5,7 +5,7 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- Create table
+-- Create table todos
 CREATE TABLE IF NOT EXISTS todos (
   id SERIAL PRIMARY KEY,
   state todo_state NOT NULL DEFAULT 'INCOMPLETE',
@@ -14,3 +14,16 @@ CREATE TABLE IF NOT EXISTS todos (
   completed_at TIMESTAMPTZ NULL
 );
 
+-- Create user table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+
+-- Add column user_id to todos table
+ALTER TABLE todos
+ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
