@@ -11,13 +11,18 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import { SaveAs } from "@mui/icons-material";
+import type { SortMode } from "../App";
+
+type TaskListProps = {
+  sortMode: SortMode;
+};
 
 type Task = {
   id: number;
   title: string;
 };
 
-export default function TaskList() {
+export default function TaskList({ sortMode }: TaskListProps) {
   const [tasks, setTasks] = React.useState<Task[]>([
     { id: 0, title: "Task 1" },
     { id: 1, title: "Task 2" },
@@ -29,6 +34,21 @@ export default function TaskList() {
   const [checked, setChecked] = React.useState([0]);
   const [editingId, setEditingId] = React.useState<number | null>(null);
   const [editingText, setEditingText] = React.useState<string>("");
+
+  //
+  const visibleTasks = React.useMemo(() => {
+    const list = [...tasks];
+
+    if (sortMode === "asc") {
+      list.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortMode === "desc") {
+      list.sort((a, b) => b.title.localeCompare(a.title));
+    } else {
+      // Use the created at for ordering the list
+    }
+
+    return list;
+  }, [tasks, sortMode]);
 
   // Checkbox Function Handler
   const handleToggle = (value: number) => () => {
@@ -78,7 +98,7 @@ export default function TaskList() {
 
   return (
     <List sx={{ width: "100%", maxWidth: 360 }}>
-      {tasks.map((task) => {
+      {visibleTasks.map((task) => {
         const labelId = `checkbox-list-label-${task.id}`;
         const isEditing = editingId === task.id;
 
