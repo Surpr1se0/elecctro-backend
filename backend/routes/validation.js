@@ -17,3 +17,10 @@ export const listTodosQuerySchema = Joi.object({
 export const todoIdParamsSchema = Joi.object({
   id: Joi.number().integer().positive().required()
 });
+
+
+// PATCH -- /todo/{id}
+export const patchTodoSchema = Joi.object({
+  state: Joi.string().valid('ALL', 'COMPLETE', 'INCOMPLETE'),
+  description: Joi.string().min(1),
+}).or('state', 'description');
