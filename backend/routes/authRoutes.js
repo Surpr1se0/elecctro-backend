@@ -120,6 +120,51 @@ export function registerAuthRoutes(server) {
 
 
   // POST /logout
+  server.route({
+    method: 'POST',
+    path: '/logout',
+    options: {
+      description: 'Logout current user',
+      notes: 'This route should invalidate the credentials of the authenticated user',
+      tag: ['api'],
+      auth: 'jwt' 
+    },
+    handler: async (request, h) => {
+      // Server side has no action
+      // localstorage, cache must delete the token
+      return h.response({message: 'Logged out'}).code(200);
+    }
+  })
+
+
   // GET /me
+  server.route({
+    method: 'GET',
+    path: '/me',
+    options: {
+      description: 'List the user details',
+      notes: 'List the authenticated user details',
+      tags: ['api'],
+      auth: 'jwt'
+    },
+    handler: async (request, h) => {
+      const {userId} = request.auth.credentials;
+
+      const user = await db('users')
+        .where({id: userId}).first();
+
+      if (!user){
+        return h.response({error: 'User was not found'}).code(404);
+      }
+
+      return h.response({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.created_at
+      });
+    }
+  })
+
   // PATCH /me
 }
