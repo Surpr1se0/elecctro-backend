@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import Jwt from "@hapi/jwt";
 import { db } from '../db/db.js';
-import { registerSchema, loginSchema } from "./authValidation.js";
+import { registerSchema, loginSchema, updateUserSchema } from "./authValidation.js";
 
 const SALT_ROUNDS = 10;
 
@@ -134,7 +134,7 @@ export function registerAuthRoutes(server) {
       // localstorage, cache must delete the token
       return h.response({message: 'Logged out'}).code(200);
     }
-  })
+  });
 
 
   // GET /me
@@ -164,9 +164,68 @@ export function registerAuthRoutes(server) {
         createdAt: user.created_at
       });
     }
-  })
+  });
 
   // PATCH /me
+  server.route({
+    method: 'PATCH',
+    path: '/me',
+    options: {
+      description: 'Update the authenticated user',
+      notes: 'This route should edit the details of the authenticated user',
+      tags: ['api'],
+      auth: 'my_jwt_strategy',
+      validate: {
+        payload: updateUserSchema,
+        failAction: (request, h, err) => 
+          h
+          .response({error: 'invalid payload', details: err.details})
+          .code(400)
+          .takeover()
+      }
+    },
+    handler: async(request, h) => {
+      const {userId} = request.auth.credentials;
+      const {email, name, password} = request.payload;
+      const updateData = {};
 
-  
+      if (email){
+        const existing = await db('users')
+          .where({email})
+          .andWhereNot({id: userId})
+          .first();
+
+          if(existing) {
+            return h.response({error: 'Email already taken'}).code(409);
+          }
+        updateData.email = email;
+      }
+
+      if(name){
+        updateData.name = name;
+      }
+
+      if(password){
+        const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+        updateData.password_hash = password_hash;
+      }
+
+      if(Object.keys(updateData).length === 0){
+        return h
+          .response({error: 'Nothing to update'}).code(400);
+      }
+
+      const [updated] = await db('users')
+        .where({id: userId})
+        .update(updateData)
+        .returning(['id', 'email', 'name', 'created_at']);
+      
+      return h.response({
+        id: updated.id,
+        email: updated.email,
+        name: updated.name,
+        createdAt: updated.created_at,
+      }).code(200);
+    }
+  });
 }
